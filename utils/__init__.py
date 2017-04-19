@@ -22,6 +22,10 @@ import astropy as ap
 from astropy import units as u
 from astropy.coordinates import SkyCoord
 
+import sfdmap
+
+
+
 def generate_coordinates(nruns, low_ra = 0., high_ra = 360., low_dec = -90., high_dec = -10):
     """
     Function to generate a set of coordinates for simulated SNe.
@@ -60,4 +64,20 @@ def generate_coordinates(nruns, low_ra = 0., high_ra = 360., low_dec = -90., hig
 
     df = pd.DataFrame({"theta" : (2. * np.pi * (np.random.uniform(umin, umax, size = nruns) - 0.5)),
                       "phi" : (np.arccos(2. * np.random.uniform(vmin, vmax, size = nruns) - 1.) - np.pi/2.)})
+    return df
+
+
+def find_extinction(df):
+    """
+
+    Parameters
+    ---
+
+    Returns
+    ---
+
+    """
+
+    m = sfdmap.SFDMap()
+    df["EBV"] = m.ebv(df["theta"], df["phi"], unit = "radian")
     return df
