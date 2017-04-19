@@ -67,7 +67,7 @@ def generate_coordinates(nruns, low_ra = 0., high_ra = 360., low_dec = -90., hig
     return df
 
 
-def find_extinction(df):
+def find_MW_extinction(df):
     """
 
     Parameters
