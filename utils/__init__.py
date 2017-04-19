@@ -26,7 +26,6 @@ def generate_coordinates(nruns, low_ra = 0., high_ra = 360., low_dec = -90., hig
     """
     Function to generate a set of coordinates for simulated SNe.
 
-
     Parameters
     ----------
 
