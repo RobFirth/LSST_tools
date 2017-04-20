@@ -25,7 +25,6 @@ from astropy.coordinates import SkyCoord
 import sfdmap
 
 
-
 def generate_coordinates(nruns, low_ra = 0., high_ra = 360., low_dec = -90., high_dec = -10):
     """
     Function to generate a set of coordinates for simulated SNe.
@@ -82,6 +81,7 @@ def find_MW_extinction(df):
     df["EBV_MW"] = m.ebv(df["theta"], df["phi"], unit = "radian")
     return df
 
+
 def plot_position_points(df):
     """
     for small realisations! If large, use plot_position_heatmap
@@ -97,6 +97,7 @@ def plot_position_points(df):
 
     plt.show()
     pass
+
 
 def plot_position_heatmap(df):
     """
@@ -125,3 +126,18 @@ def plot_position_heatmap(df):
 
     plt.show()
     pass
+
+
+def get_field_corners(df, fov_degree = 3.5):
+    """
+
+    """
+    fov = fov_degree*u.degree
+    dist_to_edge = fov.to(u.radian).value/2.
+
+    df["RA_upper"] = df["fieldRA"] + dist_to_edge
+    df["RA_lower"] = df["fieldRA"] - dist_to_edge
+    df["Dec_upper"] = df["fieldDec"] - dist_to_edge
+    df["Dec_lower"] = df["fieldDec"] +dist_to_edge
+
+    return df
