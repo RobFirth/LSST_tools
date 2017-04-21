@@ -95,7 +95,7 @@ def plot_position_points(df):
     ax_aitoff = fig.add_subplot(111, projection="aitoff")
     ax_aitoff.grid(True)
 
-    if "theta" in df.columns and phi in df.columns:
+    if "theta" in df.columns and "phi" in df.columns:
         ax_aitoff.scatter(df["theta"], df["phi"])
     else:
         ax_aitoff.scatter(df["fieldRA"], df["fieldDec"])
@@ -109,7 +109,7 @@ def plot_position_heatmap(df):
 
     """
 
-    if "theta" in df.columns and phi in df.columns:
+    if "theta" in df.columns and "phi" in df.columns:
         hist, xedges, yedges = np.histogram2d(df["theta"], df["phi"], bins = 100)
     else:
         hist, xedges, yedges = np.histogram2d(df["fieldRA"], df["fieldDec"], bins = 100)
