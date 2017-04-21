@@ -97,8 +97,10 @@ def plot_position_points(df):
 
     if "theta" in df.columns and "phi" in df.columns:
         ax_aitoff.scatter(df["theta"], df["phi"])
+    else if "fieldRA" in df.columns and "fieldDec" in df.columns:
+        ax_aitoff.scatter(df["fieldRA"] - np.pi, df["fieldDec"])
     else:
-        ax_aitoff.scatter(df["fieldRA"], df["fieldDec"])
+        ax_aitoff.scatter(df["RA"] - np.pi, df["Dec"])
 
     plt.show()
     pass
@@ -150,3 +152,24 @@ def get_field_corners(df, fov_degree = 3.5):
     df["Dec_lower"] = df["fieldDec"] +dist_to_edge
 
     return df
+
+
+def plot_field(df):
+    """
+    for small realisations! If large, use plot_position_heatmap
+    """
+
+
+    fig = plt.figure()
+    fig.subplots_adjust(left = 0.09, bottom = 0.13, top = 0.99,
+                        right = 0.97, hspace=0, wspace = .1)
+
+    ax_aitoff = fig.add_subplot(111, projection="aitoff")
+    ax_aitoff.grid(True)
+
+    x = [field_df.iloc[0,:]["RA_upper"], field_df.iloc[0,:]["RA_upper"], field_df.iloc[0,:]["RA_lower"], field_df.iloc[0,:]["RA_lower"], field_df.iloc[0,:]["RA_upper"]]
+    y = [field_df.iloc[0,:]["Dec_upper"], field_df.iloc[0,:]["Dec_lower"], field_df.iloc[0,:]["Dec_lower"], field_df.iloc[0,:]["Dec_upper"], field_df.iloc[0,:]["Dec_upper"]]
+
+    ax_aitoff.plot(x - np.pi, y, lw =2)
+    plt.show()
+    pass
