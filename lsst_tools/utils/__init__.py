@@ -167,8 +167,8 @@ def plot_field(df):
     ax_aitoff = fig.add_subplot(111, projection="aitoff")
     ax_aitoff.grid(True)
 
-    x = [field_df.iloc[0,:]["RA_upper"], field_df.iloc[0,:]["RA_upper"], field_df.iloc[0,:]["RA_lower"], field_df.iloc[0,:]["RA_lower"], field_df.iloc[0,:]["RA_upper"]]
-    y = [field_df.iloc[0,:]["Dec_upper"], field_df.iloc[0,:]["Dec_lower"], field_df.iloc[0,:]["Dec_lower"], field_df.iloc[0,:]["Dec_upper"], field_df.iloc[0,:]["Dec_upper"]]
+    x = np.array([df.iloc[0,:]["RA_upper"], df.iloc[0,:]["RA_upper"], df.iloc[0,:]["RA_lower"], df.iloc[0,:]["RA_lower"], df.iloc[0,:]["RA_upper"]])
+    y = np.array([df.iloc[0,:]["Dec_upper"], df.iloc[0,:]["Dec_lower"], df.iloc[0,:]["Dec_lower"], df.iloc[0,:]["Dec_upper"], df.iloc[0,:]["Dec_upper"]])
 
     ax_aitoff.plot(x - np.pi, y, lw =2)
     plt.show()
