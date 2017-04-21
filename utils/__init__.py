@@ -25,7 +25,7 @@ from astropy.coordinates import SkyCoord
 import sfdmap
 
 
-def generate_coordinates(nruns, low_ra = 0., high_ra = 360., low_dec = -90., high_dec = -10):
+def generate_coordinates(nruns, low_ra = 0., high_ra = 360., low_dec = -90., high_dec = 10):
     """
     Function to generate a set of coordinates for simulated SNe.
 
@@ -86,6 +86,8 @@ def plot_position_points(df):
     """
     for small realisations! If large, use plot_position_heatmap
     """
+
+
     fig = plt.figure()
     fig.subplots_adjust(left = 0.09, bottom = 0.13, top = 0.99,
                         right = 0.97, hspace=0, wspace = .1)
@@ -93,7 +95,10 @@ def plot_position_points(df):
     ax_aitoff = fig.add_subplot(111, projection="aitoff")
     ax_aitoff.grid(True)
 
-    ax_aitoff.scatter(df["theta"], df["phi"])
+    if "theta" in df.columns and phi in df.columns:
+        ax_aitoff.scatter(df["theta"], df["phi"])
+    else:
+        ax_aitoff.scatter(df["fieldRA"], df["fieldDec"])
 
     plt.show()
     pass
@@ -104,7 +109,11 @@ def plot_position_heatmap(df):
 
     """
 
-    hist, xedges, yedges = np.histogram2d(df["theta"], df["phi"], bins = 100)
+    if "theta" in df.columns and phi in df.columns:
+        hist, xedges, yedges = np.histogram2d(df["theta"], df["phi"], bins = 100)
+    else:
+        hist, xedges, yedges = np.histogram2d(df["fieldRA"], df["fieldDec"], bins = 100)
+
     X, Y = np.meshgrid(xedges, yedges)
 
     # fig = plt.figure(figsize=[12, 4])
