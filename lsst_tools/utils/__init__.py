@@ -106,7 +106,7 @@ def plot_position_points(df):
 
 def plot_position_heatmap(df):
     """
-    For checking the positional distribution of many co-ordiantes.
+
     """
 
     if "theta" in df.columns and "phi" in df.columns:
