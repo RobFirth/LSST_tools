@@ -97,7 +97,7 @@ def plot_position_points(df):
 
     if "theta" in df.columns and "phi" in df.columns:
         ax_aitoff.scatter(df["theta"], df["phi"])
-    else if "fieldRA" in df.columns and "fieldDec" in df.columns:
+    elif "fieldRA" in df.columns and "fieldDec" in df.columns:
         ax_aitoff.scatter(df["fieldRA"] - np.pi, df["fieldDec"])
     else:
         ax_aitoff.scatter(df["RA"] - np.pi, df["Dec"])
