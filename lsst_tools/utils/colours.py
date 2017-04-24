@@ -2,6 +2,7 @@
 Module Docstring
 """
 import collections
+import matplotlib.pyplot as plt
 
 __all__ = ["_colourmap_name", "rgb", "rgb255", "triplet", "hex"]
 
@@ -120,6 +121,9 @@ def rgb255(triplet):
 
 def triplet(rgb, lettercase=LOWERCASE):
     return format(rgb[0]<<16 | rgb[1]<<8 | rgb[2], '06'+lettercase)
+
+def cmap(_colourmap_name):
+    return plt.get_cmap(_spec_colourmap_name)
 
 RGB = dict()
 RGB255 = dict()

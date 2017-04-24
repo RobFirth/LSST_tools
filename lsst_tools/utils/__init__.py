@@ -22,6 +22,8 @@ import astropy as ap
 from astropy import units as u
 from astropy.coordinates import SkyCoord
 
+# import .colours as colours
+
 import sfdmap
 
 
