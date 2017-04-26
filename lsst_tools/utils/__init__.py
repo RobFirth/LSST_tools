@@ -80,7 +80,10 @@ def find_MW_extinction(df):
     """
 
     m = sfdmap.SFDMap()
-    df["EBV_MW"] = m.ebv(df["theta"], df["phi"], unit = "radian")
+    if "theta" in df.columns and "phi" in df.columns:
+        df["EBV_MW"] = m.ebv(df["theta"].values, df["phi"].values, unit = "radian")
+    elif "fieldRA" in df.columns and "fieldDec" in df.columns:
+        df["EBV_MW"] = m.ebv(df["fieldRA"].values, df["fieldDec"].values, unit = "radian")
     return df
 
 
