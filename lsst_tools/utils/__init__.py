@@ -22,6 +22,8 @@ import astropy as ap
 from astropy import units as u
 from astropy.coordinates import SkyCoord
 
+# import .colours as colours
+
 import sfdmap
 
 
@@ -78,7 +80,10 @@ def find_MW_extinction(df):
     """
 
     m = sfdmap.SFDMap()
-    df["EBV_MW"] = m.ebv(df["theta"], df["phi"], unit = "radian")
+    if "theta" in df.columns and "phi" in df.columns:
+        df["EBV_MW"] = m.ebv(df["theta"].values, df["phi"].values, unit = "radian")
+    elif "fieldRA" in df.columns and "fieldDec" in df.columns:
+        df["EBV_MW"] = m.ebv(df["fieldRA"].values, df["fieldDec"].values, unit = "radian")
     return df
 
 
@@ -97,8 +102,10 @@ def plot_position_points(df):
 
     if "theta" in df.columns and "phi" in df.columns:
         ax_aitoff.scatter(df["theta"], df["phi"])
+    elif "fieldRA" in df.columns and "fieldDec" in df.columns:
+        ax_aitoff.scatter(df["fieldRA"] - np.pi, df["fieldDec"])
     else:
-        ax_aitoff.scatter(df["fieldRA"], df["fieldDec"])
+        ax_aitoff.scatter(df["RA"] - np.pi, df["Dec"])
 
     plt.show()
     pass
@@ -150,3 +157,24 @@ def get_field_corners(df, fov_degree = 3.5):
     df["Dec_lower"] = df["fieldDec"] +dist_to_edge
 
     return df
+
+
+def plot_field(df):
+    """
+    for small realisations! If large, use plot_position_heatmap
+    """
+
+
+    fig = plt.figure()
+    fig.subplots_adjust(left = 0.09, bottom = 0.13, top = 0.99,
+                        right = 0.97, hspace=0, wspace = .1)
+
+    ax_aitoff = fig.add_subplot(111, projection="aitoff")
+    ax_aitoff.grid(True)
+
+    x = np.array([df.iloc[0,:]["RA_upper"], df.iloc[0,:]["RA_upper"], df.iloc[0,:]["RA_lower"], df.iloc[0,:]["RA_lower"], df.iloc[0,:]["RA_upper"]])
+    y = np.array([df.iloc[0,:]["Dec_upper"], df.iloc[0,:]["Dec_lower"], df.iloc[0,:]["Dec_lower"], df.iloc[0,:]["Dec_upper"], df.iloc[0,:]["Dec_upper"]])
+
+    ax_aitoff.plot(x - np.pi, y, lw =2)
+    plt.show()
+    pass
