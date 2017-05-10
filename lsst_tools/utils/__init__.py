@@ -13,6 +13,7 @@ except:
 from matplotlib import pyplot as plt
 
 import os
+import sys
 import warnings
 
 import numpy as np
@@ -178,3 +179,12 @@ def plot_field(df):
     ax_aitoff.plot(x - np.pi, y, lw =2)
     plt.show()
     pass
+
+
+if sys.version_info < (3,):
+    def b(x):
+        return x
+else:
+    import codecs
+    def b(x):
+        return codecs.latin_1_encode(x)[0]
