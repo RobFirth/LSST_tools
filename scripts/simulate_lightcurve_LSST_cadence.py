@@ -12,7 +12,7 @@
 """
 
 """
-get_ipython().magic('matplotlib inline')
+# get_ipython().magic('matplotlib inline')
 # %matplotlib notebook
 
 from __future__ import print_function
@@ -55,7 +55,7 @@ import pycoco as pcc
 
 # %%timeit ## 1 loop, best of 3: 1min 31s per loop
 opsimdbpath = os.environ.get('OPSIMDBPATH')
-print(opsimdbpath)
+print("Reading opsim from ", opsimdbpath)
 # opsimdbpath = "/Users/berto/data/LSST/OpSimOutputDBs/astro_lsst_01_1068_sqlite.db"
 opsimdbpath = "/Users/berto/data/LSST/OpSimOutputDBs/minion_1016_sqlite.db"
 
@@ -232,6 +232,8 @@ limiting_mags = working_df["fiveSigmaDepth"][working_df["fieldID"].isin(field_df
 filters_to_sim = working_df["filter"][working_df["fieldID"].isin(field_df["fieldID"].values)].values
 filters_to_sim = np.array([utils.b('LSST_'+x) for x in filters_to_sim])
 
+#
+# w = np.where(filters_to_sim)
 
 # In[ ]:
 
