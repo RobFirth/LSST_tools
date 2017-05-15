@@ -11,6 +11,8 @@ except:
 
 
 from matplotlib import pyplot as plt
+from matplotlib.collections import PatchCollection
+import matplotlib.patches as mpatches
 
 import os
 import sys
@@ -65,6 +67,9 @@ def generate_coordinates(nruns, low_ra = 0., high_ra = 360., low_dec = -90., hig
 
     df = pd.DataFrame({"theta" : (2. * np.pi * (np.random.uniform(umin, umax, size = nruns) - 0.5)),
                       "phi" : (np.arccos(2. * np.random.uniform(vmin, vmax, size = nruns) - 1.) - np.pi/2.)})
+
+    df["RA"] = df["theta"] + np.pi
+    df["Dec"] = df["phi"]
     return df
 
 
@@ -91,20 +96,6 @@ def plot_position_points(df, galacticplane = True, lw = 2 ):
     """
     for small realisations! If large, use plot_position_heatmap
     """
-
-    # ## make line of Galactic = 0 Lat
-    # long = np.arange(-180., 181., 1.)
-    # lat = np.zeros_like(long)
-    # long_ra_rad_arr = np.array([])
-    # lat_dec_rad_arr = np.array([])
-    #
-    # for i in range(len(long)):
-    #     sc = SkyCoord(long[i], lat[i], unit='deg', frame=Galactic)
-    #     long_ra_rad_arr = np.append(long_ra_rad_arr, sc.icrs.ra.wrap_at(180*u.deg).radian)
-    #     lat_dec_rad_arr = np.append(lat_dec_rad_arr, sc.icrs.dec.radian)
-    #
-    # w = np.argsort(long_ra_rad_arr)
-
     fig = plt.figure()
     fig.subplots_adjust(left = 0.09, bottom = 0.13, top = 0.99,
                         right = 0.97, hspace=0, wspace = .1)
@@ -118,7 +109,10 @@ def plot_position_points(df, galacticplane = True, lw = 2 ):
         ax_aitoff.scatter(df["fieldRA"] - np.pi, df["fieldDec"])
     else:
         ax_aitoff.scatter(df["RA"] - np.pi, df["Dec"])
-    ax_aitoff.plot(long_ra_rad_arr[w], lat_dec_rad_arr[w], lw = lw, color = hex['wetasphalt'], alpha = 0.5)
+
+    gp_df = get_galactic_plane()
+
+    ax_aitoff.plot(gp_df["RA"], gp_df["Dec"], lw = lw, color = hex['wetasphalt'], alpha = 0.5)
 
     plt.show()
     pass
@@ -164,10 +158,23 @@ def get_field_corners(df, fov_degree = 3.5):
     fov = fov_degree*u.degree
     dist_to_edge = fov.to(u.radian).value/2.
 
-    df["RA_upper"] = df["fieldRA"] + dist_to_edge
-    df["RA_lower"] = df["fieldRA"] - dist_to_edge
-    df["Dec_upper"] = df["fieldDec"] - dist_to_edge
-    df["Dec_lower"] = df["fieldDec"] +dist_to_edge
+    if "fieldRA" in df.keys() and "fieldDec" in df.keys():
+        df["RA_upper"] = df["fieldRA"] + dist_to_edge
+        df["RA_lower"] = df["fieldRA"] - dist_to_edge
+        df["Dec_upper"] = df["fieldDec"] - dist_to_edge
+        df["Dec_lower"] = df["fieldDec"] + dist_to_edge
+
+    elif "RA" in df.keys() and "Dec" in df.keys():
+        df["RA_upper"] = df["RA"] + dist_to_edge
+        df["RA_lower"] = df["RA"] - dist_to_edge
+        df["Dec_upper"] = df["Dec"] - dist_to_edge
+        df["Dec_lower"] = df["Dec"] + dist_to_edge
+
+    elif "phi" in df.keys() and "theta" in df.keys():
+        df["RA_upper"] = df["theta"] + dist_to_edge - np.pi
+        df["RA_lower"] = df["theta"] - dist_to_edge - np.pi
+        df["Dec_upper"] = df["phi"] - dist_to_edge
+        df["Dec_lower"] = df["phi"] + dist_to_edge
 
     return df
 
@@ -193,9 +200,51 @@ def plot_field(df):
     pass
 
 
+def plot_field_patch(df, fov_degree = 3.5, projection="hammer"):
+    """
+    for small realisations! If large, use plot_position_heatmap
+    """
+    fov = fov_degree*u.degree
+    fov_rad = fov.to(u.radian)
+
+    patches = []
+    wRA = np.where(df.columns == "RA_lower")[0][0]
+    wDec = np.where(df.columns == "Dec_lower")[0][0]
+
+    for row in df.itertuples():
+        rect = mpatches.Rectangle(xy = (row[wRA] - np.pi, row[wDec]),
+                                  width = fov_rad.value, height = fov_rad.value, ec="Black")
+        patches.append(rect)
+
+    collection = PatchCollection(patches)
+
+    fig = plt.figure()
+    fig.subplots_adjust(left = 0.09, bottom = 0.13, top = 0.99,
+                        right = 0.97, hspace=0, wspace = .1)
+
+    if not projection:
+        ax = fig.add_subplot(111)
+    else:
+        ax = fig.add_subplot(111, projection = projection)
+
+    ax.grid(True)
+    ax.add_collection(collection)
+
+    # x = np.array([df.iloc[0,:]["RA_upper"], df.iloc[0,:]["RA_upper"], df.iloc[0,:]["RA_lower"], df.iloc[0,:]["RA_lower"], df.iloc[0,:]["RA_upper"]])
+    # y = np.array([df.iloc[0,:]["Dec_upper"], df.iloc[0,:]["Dec_lower"], df.iloc[0,:]["Dec_lower"], df.iloc[0,:]["Dec_upper"], df.iloc[0,:]["Dec_upper"]])
+    #
+    # ax_aitoff.plot(x - np.pi, y, lw =2)
+    if not projection:
+        ax.set_xlim(df["RA_lower"].min(skipna = True), df["RA_upper"].max(skipna = True))
+        ax.set_ylim(df["Dec_lower"].min(skipna = True), df["Dec_upper"].max(skipna = True))
+
+    plt.show()
+    pass
+
+
 def get_galactic_plane(remake = False, path = "data/galactic_plane_RADec.dat"):
     print(os.path.abspath(os.path.join(__file__, os.pardir, os.pardir)))
-    fullpath = os.path.join(__file__, os.pardir, os.pardir, "data/galactic_plane_RADec.dat")
+    fullpath = os.path.abspath(os.path.join(__file__, os.pardir, os.pardir, "data/galactic_plane_RADec.dat"))
 
     if remake:
         try:
@@ -222,12 +271,12 @@ def get_galactic_plane(remake = False, path = "data/galactic_plane_RADec.dat"):
     return coord_table
 
 
-
 def print_path():
     # fullpath = os.path.join(__file__, os.pardir, os.pardir)
     fullpath = os.path.join(__file__, os.pardir, os.pardir, "data/galactic_plane_RADec.dat")
     print(os.path.abspath(fullpath))
     pass
+
 
 if sys.version_info < (3,):
     def b(x):
