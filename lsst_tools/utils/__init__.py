@@ -15,15 +15,14 @@ from matplotlib import pyplot as plt
 import os
 import sys
 import warnings
-
 import numpy as np
 import pandas as pd
 import astropy as ap
 
 from astropy import units as u
-from astropy.coordinates import SkyCoord
+from astropy.coordinates import SkyCoord, Galactic, ICRS, Angle, Latitude, Longitude
 
-# import .colours as colours
+from .colours import hex, RGB, RGB255
 
 import sfdmap
 
@@ -88,11 +87,23 @@ def find_MW_extinction(df):
     return df
 
 
-def plot_position_points(df):
+def plot_position_points(df, galacticplane = True, lw = 2 ):
     """
     for small realisations! If large, use plot_position_heatmap
     """
 
+    # ## make line of Galactic = 0 Lat
+    # long = np.arange(-180., 181., 1.)
+    # lat = np.zeros_like(long)
+    # long_ra_rad_arr = np.array([])
+    # lat_dec_rad_arr = np.array([])
+    #
+    # for i in range(len(long)):
+    #     sc = SkyCoord(long[i], lat[i], unit='deg', frame=Galactic)
+    #     long_ra_rad_arr = np.append(long_ra_rad_arr, sc.icrs.ra.wrap_at(180*u.deg).radian)
+    #     lat_dec_rad_arr = np.append(lat_dec_rad_arr, sc.icrs.dec.radian)
+    #
+    # w = np.argsort(long_ra_rad_arr)
 
     fig = plt.figure()
     fig.subplots_adjust(left = 0.09, bottom = 0.13, top = 0.99,
@@ -107,6 +118,7 @@ def plot_position_points(df):
         ax_aitoff.scatter(df["fieldRA"] - np.pi, df["fieldDec"])
     else:
         ax_aitoff.scatter(df["RA"] - np.pi, df["Dec"])
+    ax_aitoff.plot(long_ra_rad_arr[w], lat_dec_rad_arr[w], lw = lw, color = hex['wetasphalt'], alpha = 0.5)
 
     plt.show()
     pass
@@ -181,6 +193,42 @@ def plot_field(df):
     pass
 
 
+def get_galactic_plane(remake = False, path = "data/galactic_plane_RADec.dat"):
+    print(os.path.abspath(os.path.join(__file__, os.pardir, os.pardir)))
+    fullpath = os.path.join(__file__, os.pardir, os.pardir, "data/galactic_plane_RADec.dat")
+
+    if remake:
+        try:
+            ## make line of Galactic = 0 Lat
+            long = np.arange(-180., 181., 1.)
+            lat = np.zeros_like(long)
+            long_ra_rad_arr = np.array([])
+            lat_dec_rad_arr = np.array([])
+
+            for i in range(len(long)):
+                sc = SkyCoord(long[i], lat[i], unit='deg', frame=Galactic)
+                long_ra_rad_arr = np.append(long_ra_rad_arr, sc.icrs.ra.wrap_at(180*u.deg).radian)
+                lat_dec_rad_arr = np.append(lat_dec_rad_arr, sc.icrs.dec.radian)
+
+            w = np.argsort(long_ra_rad_arr)
+
+            coord_table = ap.table.Table((long_ra_rad_arr[w], lat_dec_rad_arr[w]), names = ("RA", "Dec" ))
+
+            coord_table.write(path = fullpath, format = "ascii.commented_header")
+        except:
+            warnings.warn("something went wrong")
+    else:
+        coord_table = ap.io.ascii.read(fullpath, format = "commented_header")
+    return coord_table
+
+
+
+def print_path():
+    # fullpath = os.path.join(__file__, os.pardir, os.pardir)
+    fullpath = os.path.join(__file__, os.pardir, os.pardir, "data/galactic_plane_RADec.dat")
+    print(os.path.abspath(fullpath))
+    pass
+
 if sys.version_info < (3,):
     def b(x):
         return x
@@ -188,3 +236,10 @@ else:
     import codecs
     def b(x):
         return codecs.latin_1_encode(x)[0]
+
+if __name__ == "__main__":
+
+    print(os.pardir(__file__))
+
+else:
+    pass
