@@ -278,6 +278,16 @@ def print_path():
     pass
 
 
+# http://smtn-002.lsst.io/en/latest/
+def calc_Tscale():
+    return Tscale
+
+def calc_dCm():
+    return dCm
+
+def calc_m5():
+    return m5
+
 if sys.version_info < (3,):
     def b(x):
         return x
