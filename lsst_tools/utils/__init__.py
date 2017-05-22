@@ -279,7 +279,8 @@ def print_path():
 
 
 # http://smtn-002.lsst.io/en/latest/
-def calc_Tscale():
+def calc_Tscale(df):
+    Tscale = df["visitExpTime"].head()/30. * np.power()
     return Tscale
 
 def calc_dCm():
