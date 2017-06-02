@@ -118,6 +118,16 @@ def plot_position_points(df, galacticplane = True, lw = 2 ):
     pass
 
 
+def field_df_to_pos_df(field_df):
+    """
+    """
+    field_df.is_copy = False ## gets rid of stupid warning https://stackoverflow.com/questions/20625582/how-to-deal-with-settingwithcopywarning-in-pandas
+    field_df["theta"] = field_df.fieldRA - np.pi
+    field_df["phi"] = field_df.fieldDec
+
+    return field_df
+
+
 def plot_position_heatmap(df):
     """
 
@@ -275,6 +285,10 @@ def print_path():
     # fullpath = os.path.join(__file__, os.pardir, os.pardir)
     fullpath = os.path.join(__file__, os.pardir, os.pardir, "data/galactic_plane_RADec.dat")
     print(os.path.abspath(fullpath))
+    pass
+
+
+def plot_cadence():
     pass
 
 
