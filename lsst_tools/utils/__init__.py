@@ -29,7 +29,7 @@ from .colours import hex, RGB, RGB255
 import sfdmap
 
 
-def generate_coordinates(nruns, low_ra = 0., high_ra = 360., low_dec = -90., high_dec = 10):
+def generate_coordinates(nruns = 1, low_ra = 0., high_ra = 360., low_dec = -90., high_dec = 10):
     """
     Function to generate a set of coordinates for simulated SNe.
 
