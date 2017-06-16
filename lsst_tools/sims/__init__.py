@@ -269,3 +269,86 @@ def generate_lc(working_df, pos_df = False, n = 1):
     coco = pccsims.pyCoCo(b(filter_path), b(coco_root_path))
 
     return
+
+
+
+#  # Originally used for SDSS Sample Generation
+
+def choose_subtype(return_string=True):
+    """
+    1|Ib | 11|0.328|
+    2|Ic | 9.7|0.290|
+    3|IIb | 12.8|0.382|
+    total - 33.5
+    """
+    n = 33.5 * np.random.random()
+
+    if n <= 11:
+        if return_string:
+            return "Ib"
+        else:
+            return 1
+
+    if 11 < n <= 11 + 9.7:
+        if return_string:
+            return "Ic"
+        else:
+            return 2
+
+    if 11 + 9.7 < n <= 11 + 9.7 + 12.8:
+        if return_string:
+            return "IIb"
+        else:
+            return 3
+    pass
+
+
+def choose_extinction_host(x0=0.0, sigma=0.2, n=10000):
+    """
+    """
+    return np.fabs(np.random.normal(loc=x0, scale=sigma, size=n))
+
+
+def choose_magoffset(x0=0.0, sigma=0.2, n=10000):
+    """
+    """
+    return np.random.normal(loc=x0, scale=sigma, size=n)
+
+
+def calculate_SFR(z):
+    """
+
+    :param z:
+    :return:
+    """
+    a = 0.0170
+    b = 0.13
+    c = 3.3
+    d = 5.3
+    h = 0.7
+
+    sfr = (a + b * z) * h / (1. + (z / c) ** d)
+
+    return sfr
+
+def string_format_for_mapping(x):
+    return pcc.utils.b("SDSS_" + x)
+
+def choose_z(z_max=0.6, n=1):
+    """
+
+    :param n:
+    :param z_max:
+    :return:
+    """
+    return z_max * np.random.random(n)
+
+def choose_MJDmax(obslog, n=1):
+    """
+
+    :param obslog:
+    :param n:
+    :return:
+    """
+    random_MJD = (obslog.mjd.max() - obslog.mjd.min()) * np.random.random(n) + obslog.mjd.min()
+    return random_MJD
