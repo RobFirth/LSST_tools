@@ -1,5 +1,6 @@
 # import matplotlib.pyplot as plt
-import os
+import json
+import pandas as pd
 import numpy as np
 
 import pycoco as pcc
@@ -18,7 +19,7 @@ if __name__ == "__main__":
     verbose = False
     log = True
     # log = False
-    logall = False
+    # logall = False
     if log:
         gentime = str(datetime.now())
         logvars = ["gentime",
@@ -37,8 +38,9 @@ if __name__ == "__main__":
                    "snname",
                    "flux",
                    "n",
-                   "n_sne"]
-    n_sne_req = 10000
+                   "n_sne",
+                   ]
+    n_sne_req = 10
     z_max = 0.3
     plot = False
 
@@ -84,7 +86,7 @@ if __name__ == "__main__":
         n += 1
         # print(n)
         if log:
-            logpath = logfile + str(n_sne+1).rjust(6, "0") +".dat"
+            logpath = logfile + str(n_sne+1).rjust(6, "0") +".json"
 
         ## Choose simlib
         sl = np.random.choice(simlib_array)
@@ -190,29 +192,51 @@ if __name__ == "__main__":
                 p_df["flux_err"] = flux_err
                 p_df["#MJD"] = p_df["MJD"]
                 p_df.fillna(0, inplace = True)
-                p_df[["#MJD", "flux", "flux_err", "filter"]].to_csv(outfile + str(n_sne+1).rjust(6, "0") +".dat", sep=" ", index = False, )
+                full_out_path = outfile + str(n_sne + 1).rjust(6, "0") + ".dat"
+                p_df[["#MJD", "flux", "flux_err", "filter"]].to_csv(full_out_path, sep=" ", index = False, )
+
+                if log:
+                    logdict = {}
+                    for i in logvars:
+                        if type(locals()[i]) == np.ndarray:
+                            logdict[i] = locals()[i].tolist()
+                        elif type(locals()[i]) == np.int64:
+                            logdict[i] = int(locals()[i])
+                        elif type(locals()[i]) == pd.Series:
+                            logdict[i] = locals()[i].to_json()
+                        elif type(locals()[i]) == bytes:
+                            logdict[i] = str(locals()[i], "utf-8")
+                        else:
+                            logdict[i] = locals()[i]
+
+                    with open(logpath, "w") as ofile:
+                        json.dumps(logdict, sort_keys=True,
+                                   indent=4, separators=(',', ': '))
+                        #     for i in logvars:
+                        json.dump(logdict, ofile, sort_keys=True,
+                                  indent=4, separators=(',', ': '))
+
+                    #         ofile.write(str(i) + " " + str(locals()[i]) + "\n")
+                        ofile.close()
 
                 n_sne += 1
-                if log:
-                    with open(logpath, "w") as ofile:
-                        for i in logvars:
-                            ofile.write(str(i) + " " + str(locals()[i]) + "\n")
-            if logall:
-                if log:
-                    with open(logpath, "w") as ofile:
-                        for i in logvars:
-                            ofile.write(str(i) + " " + str(locals()[i]) + "\n")
+
+            # if logall:
+            #     if log:
+            #         with open(logpath, "w") as ofile:
+            #             for i in logvars:
+            #                 ofile.write(str(i) + " " + str(locals()[i]) + "\n")
         else:
-            if logall:
-                if log:
-                    with open(logpath, "w") as ofile:
-                        for i in logvars:
-                            ofile.write(str(i) + " " + str(locals()[i]) + "\n")
+            # if logall:
+            #     if log:
+            #         with open(logpath, "w") as ofile:
+            #             for i in logvars:
+            #                 ofile.write(str(i) + " " + str(locals()[i]) + "\n")
 
             pass
         # except:
         #     pass
     print("rejection rate %")
-    print(100/ - (n_sne/n))
+    print(100. -  (n_sne/n))
 else:
     pass
