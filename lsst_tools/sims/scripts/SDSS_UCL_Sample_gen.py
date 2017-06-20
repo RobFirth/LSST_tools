@@ -40,7 +40,7 @@ if __name__ == "__main__":
                    "n",
                    "n_sne",
                    ]
-    n_sne_req = 10
+    n_sne_req = 10000
     z_max = 0.3
     plot = False
 
@@ -62,7 +62,7 @@ if __name__ == "__main__":
 
     simlib_array = np.array([simlib05, simlib06, simlib07])
 
-    mag_offsets = lsstt.sims.choose_magoffset(n_sne_req)
+    mag_offsets = lsstt.sims.choose_magoffset(n = n_sne_req)
 
     info = pcc.InfoClass()
     info.load()
@@ -146,7 +146,7 @@ if __name__ == "__main__":
         if verbose: print(w, snname)
 
         snname = b"SN2011dh"
-
+        # mag_offset = -2.0 ## Make Ia-like
         ## Simulate "Perfect" LC
         flux, flux_err = coco.simulate(snname,
                                        z_sim, mag_offset, MW_EBV, host_EBV, 3.1,
@@ -236,7 +236,10 @@ if __name__ == "__main__":
             pass
         # except:
         #     pass
-    print("rejection rate %")
-    print(100. -  (n_sne/n))
+
+    print("number passed = ", n_sne)
+    print("number simulated = ", n)
+    print("rejection rate %:")
+    print(round(100.*(n - n_sne)/n, 2))
 else:
     pass
