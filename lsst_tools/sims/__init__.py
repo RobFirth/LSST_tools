@@ -4,27 +4,22 @@
 from __future__ import print_function
 
 try:
-    from importlib import reload
-except:
-    pass
-
+    reload  # Python 2.7
+except NameError:
+    try:
+        from importlib import reload  # Python 3.4+
+    except ImportError:
+        from imp import reload  # Python 3.0 - 3.3
 
 from matplotlib import pyplot as plt
 import matplotlib.colors as mpl_colors
 
-import os
-import warnings
-
 import numpy as np
 import pandas as pd
-import astropy as ap
-import sfdmap
 
-import sqlite3
 from sqlalchemy import create_engine
-
-from astropy import units as u
-from astropy.coordinates import SkyCoord
+from astropy.cosmology import LambdaCDM
+from scipy.interpolate import InterpolatedUnivariateSpline
 
 import lsst_tools.utils as utils
 import lsst_tools.utils.colours as colours
@@ -32,10 +27,8 @@ import lsst_tools.utils.colours as colours
 import pyCoCo as pccsims
 import pycoco as pcc
 
-from multiprocessing import Pool, cpu_count
-from functools import partial
 
-def connect_to_db(opsimdbpath = "/Users/berto/data/LSST/OpSimOutputDBs/minion_1016_sqlite.db"):
+def connect_to_db(opsimdbpath="/Users/berto/data/LSST/OpSimOutputDBs/minion_1016_sqlite.db"):
     """
 
     """
@@ -43,7 +36,7 @@ def connect_to_db(opsimdbpath = "/Users/berto/data/LSST/OpSimOutputDBs/minion_10
     # opsimdbpath = "/Users/berto/data/LSST/OpSimOutputDBs/astro_lsst_01_1068_sqlite.db"
     # opsimdbpath = "/Users/berto/data/LSST/OpSimOutputDBs/Fake_Rolling/Rolling_3_80/Rolling_3_80.db"
 
-    conn = create_engine('sqlite:///'+opsimdbpath, echo = False)
+    conn = create_engine('sqlite:///'+opsimdbpath, echo=False)
     opsimdf = pd.read_sql_table('Summary', con=conn)
     return opsimdf
 
@@ -271,7 +264,6 @@ def generate_lc(working_df, pos_df = False, n = 1):
     return
 
 
-
 #  # Originally used for SDSS Sample Generation
 
 def choose_subtype(return_string=True):
@@ -331,10 +323,12 @@ def calculate_SFR(z):
 
     return sfr
 
+
 def string_format_for_mapping(x):
     return pcc.utils.b("SDSS_" + x)
 
-def choose_z(z_max=0.6, n=1):
+
+def choose_z_flat(z_max=0.6, n=1):
     """
 
     :param n:
@@ -343,6 +337,48 @@ def choose_z(z_max=0.6, n=1):
     """
     return z_max * np.random.random(n)
 
+def choose_z_volume_SFR(n_req=10000, zmax=8.0, binsize=0.01):
+    """
+
+    :return:
+    """
+
+
+    z = np.arange(0.0, zmax, binsize)
+    z_dz = np.arange(0.0 + binsize, zmax + binsize, binsize)
+
+    cosmo = LambdaCDM(H0=70, Om0=0.3, Ode0=0.7)
+
+    v_z = cosmo.comoving_volume(z)
+    v_z_dz = cosmo.comoving_volume(z_dz)
+
+    v_dz = v_z_dz - v_z
+
+    norm_v_dz = v_dz / np.nanmax(v_dz)
+
+    sfr_z = calculate_SFR(z)
+    sfr_norm = sfr_z / np.nanmax(sfr_z)
+
+    volumetric_rate = norm_v_dz * sfr_norm
+    normed_volumetric_rate = volumetric_rate / np.nanmax(volumetric_rate)
+
+    pdf = InterpolatedUnivariateSpline(z, normed_volumetric_rate)
+
+
+    n = 0
+    z_sim = []
+    while n < n_req:
+        x = np.random.random() * zmax
+        y = np.random.random()
+
+        if y <= pdf(x):
+            z_sim.append(x)
+            n += 1
+
+
+    return z_sim
+
+
 def choose_MJDmax(obslog, n=1):
     """
 
@@ -350,5 +386,6 @@ def choose_MJDmax(obslog, n=1):
     :param n:
     :return:
     """
+
     random_MJD = (obslog.mjd.max() - obslog.mjd.min()) * np.random.random(n) + obslog.mjd.min()
     return random_MJD

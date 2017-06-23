@@ -46,8 +46,8 @@ if __name__ == "__main__":
 
     ## Initialise pyCoCo
     fltPath = b"/Users/berto/Code/CoCo/data/filters"
-    # rootPath = b"/Users/berto/Code/CoCo"
-    rootPath = b"/Users/berto/projects/stunt_CoCo"
+    rootPath = b"/Users/berto/Code/CoCo"
+    # rootPath = b"/Users/berto/projects/stunt_CoCo"
 
     coco = pccsim.pyCoCo(fltPath, rootPath)
     lcs = LCSim()
@@ -62,7 +62,8 @@ if __name__ == "__main__":
 
     simlib_array = np.array([simlib05, simlib06, simlib07])
 
-    mag_offsets = lsstt.sims.choose_magoffset(n = n_sne_req)
+    # mag_offsets = lsstt.sims.choose_magoffset(n = n_sne_req)
+    z_obs = lsstt.sims.choose_z_volume_SFR(n_req=n_sne_req, zmax=z_max)
 
     info = pcc.InfoClass()
     info.load()
@@ -115,7 +116,14 @@ if __name__ == "__main__":
         mjd_to_sim = obslog.mjd.values
 
         ## choose z
-        z_sim = lsstt.sims.choose_z(z_max = z_max)
+        # z_sim = lsstt.sims.choose_z(z_max = z_max)
+        if len(z_obs) > 1:
+            w_z = np.random.randint(0, len(z_obs)-1)
+        else:
+            w_z = 0
+
+        z_sim = z_obs[w_z]
+
         if verbose: print("z= ", z_sim)
 
         ## choose MWEBV
@@ -123,7 +131,8 @@ if __name__ == "__main__":
         if verbose: print(MW_EBV)
 
         ## Choose MagOffset
-        mag_offset = np.random.choice(mag_offsets)
+        # mag_offset = np.random.choice(mag_offsets)
+        mag_offset = lsstt.sims.choose_magoffset(n=1)
         if verbose: print("magoffset = ", mag_offset)
 
         ## Choose HostEBV
@@ -145,7 +154,7 @@ if __name__ == "__main__":
         snname = pcc.utils.b(info.table["snname"].data[w][0])
         if verbose: print(w, snname)
 
-        snname = b"SN2011dh"
+        # snname = b"SN2011dh"
         # mag_offset = -2.0 ## Make Ia-like
         ## Simulate "Perfect" LC
         flux, flux_err = coco.simulate(snname,
@@ -188,6 +197,9 @@ if __name__ == "__main__":
 
             if len(w_detected) >= 6:
                 if verbose: print("good sne")
+                ## Remove redshift simulated at top of code from the list
+                z_obs = np.delete(z_obs, [w_z])
+
                 p_df["flux"] = flux
                 p_df["flux_err"] = flux_err
                 p_df["#MJD"] = p_df["MJD"]
