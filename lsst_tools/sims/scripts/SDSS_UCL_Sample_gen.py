@@ -6,7 +6,8 @@ import numpy as np
 import pycoco as pcc
 import pyCoCo as pccsim
 
-# from astropy.table import Table
+from astropy.cosmology import LambdaCDM
+from scipy.interpolate import InterpolatedUnivariateSpline
 
 import lsst_tools as lsstt
 from lcsim.simlib import SIMLIBReader
@@ -63,7 +64,31 @@ if __name__ == "__main__":
     simlib_array = np.array([simlib05, simlib06, simlib07])
 
     # mag_offsets = lsstt.sims.choose_magoffset(n = n_sne_req)
-    z_obs = lsstt.sims.choose_z_volume_SFR(n_req=n_sne_req, zmax=z_max)
+    # z_obs = lsstt.sims.choose_z_volume_SFR(n_req=n_sne_req, zmax=z_max)
+
+    ## This is faster than choose_z_volume_SFR -
+    ## choose_z_volume_SFR is faster to generate large numbers
+    binsize = 0.01
+    z = np.arange(0.0, z_max, binsize)
+    z_dz = np.arange(0.0 + binsize, z_max + binsize, binsize)
+
+    cosmo = LambdaCDM(H0=70, Om0=0.3, Ode0=0.7)
+
+    v_z = cosmo.comoving_volume(z)
+    v_z_dz = cosmo.comoving_volume(z_dz)
+
+    v_dz = v_z_dz - v_z
+
+    norm_v_dz = v_dz / np.nanmax(v_dz)
+
+    sfr_z = lsstt.sims.calculate_SFR(z)
+    sfr_norm = sfr_z / np.nanmax(sfr_z)
+
+    volumetric_rate = norm_v_dz * sfr_norm
+    normed_volumetric_rate = volumetric_rate / np.nanmax(volumetric_rate)
+    ## Generate probability density function
+    pdf = InterpolatedUnivariateSpline(z, normed_volumetric_rate)
+
 
     info = pcc.InfoClass()
     info.load()
@@ -117,12 +142,21 @@ if __name__ == "__main__":
 
         ## choose z
         # z_sim = lsstt.sims.choose_z(z_max = z_max)
-        if len(z_obs) > 1:
-            w_z = np.random.randint(0, len(z_obs)-1)
-        else:
-            w_z = 0
+        # if len(z_obs) > 1:
+        #     w_z = np.random.randint(0, len(z_obs)-1)
+        # else:
+        #     w_z = 0
+        #
+        # z_sim = z_obs[w_z]
+        # z_sim = lsstt.sims.choose_z_volume_SFR(n_req=1, zmax=z_max)
+        n_z = 0
+        while n_z < 1:
+            x = np.random.random() * z_max
+            y = np.random.random()
 
-        z_sim = z_obs[w_z]
+            if y <= pdf(x):
+                z_sim = (x)
+                n_z += 1
 
         if verbose: print("z= ", z_sim)
 
@@ -198,7 +232,7 @@ if __name__ == "__main__":
             if len(w_detected) >= 6:
                 if verbose: print("good sne")
                 ## Remove redshift simulated at top of code from the list
-                z_obs = np.delete(z_obs, [w_z])
+                # z_obs = np.delete(z_obs, [w_z])
 
                 p_df["flux"] = flux
                 p_df["flux_err"] = flux_err
