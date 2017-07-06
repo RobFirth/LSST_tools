@@ -9,6 +9,8 @@ import pyCoCo as pccsim
 from astropy.cosmology import LambdaCDM
 from scipy.interpolate import InterpolatedUnivariateSpline
 
+import matplotlib.pyplot as plt
+
 import lsst_tools as lsstt
 from lcsim.simlib import SIMLIBReader
 from lcsim.lcsim import LCSim
@@ -91,7 +93,9 @@ if __name__ == "__main__":
 
 
     info = pcc.InfoClass()
-    info.load()
+    # info.load()
+    # use only good SNe
+    info.load(path = "/Users/berto/Code/CoCo/data/info/info_good.dat")
 
     filter_names = ["SDSS_u","SDSS_g","SDSS_r","SDSS_i","SDSS_z"]
 
@@ -217,7 +221,7 @@ if __name__ == "__main__":
             flux, flux_err = lcs.simulate(p_df["mag"], obslog, unit="ab")
 
             if plot:
-                plt.errorbar(p_df.MJD, flux, yerr=flux_error, fmt="o")
+                plt.errorbar(p_df.MJD, flux, yerr=flux_err, fmt="o")
                 plt.show()
 
             w_detected = np.where((~np.isnan(flux.values)) & ((flux.values/flux_err.values) > 5))[0]
