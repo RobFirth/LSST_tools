@@ -43,8 +43,9 @@ if __name__ == "__main__":
                    "n",
                    "n_sne",
                    ]
+
     n_sne_req = 10000
-    z_max = 0.3
+    z_max = 0.4
     plot = False
 
     ## Initialise pyCoCo
@@ -170,7 +171,7 @@ if __name__ == "__main__":
 
         ## Choose MagOffset
         # mag_offset = np.random.choice(mag_offsets)
-        mag_offset = lsstt.sims.choose_magoffset(n=1)
+        mag_offset = lsstt.sims.choose_magoffset(n=1)[0]
         if verbose: print("magoffset = ", mag_offset)
 
         ## Choose HostEBV
@@ -189,8 +190,8 @@ if __name__ == "__main__":
         ## Choose SN
         w = np.where(info.table["Type"] == subtype)[0]
         snindex = np.random.choice(w)
-        snname = pcc.utils.b(info.table["snname"].data[w][0])
-        if verbose: print(w, snname)
+        snname = pcc.utils.b(info.table["snname"].data[snindex])
+        if verbose: print(w, snname, snindex)
 
         # snname = b"SN2011dh"
         # mag_offset = -2.0 ## Make Ia-like
