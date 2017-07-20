@@ -311,6 +311,45 @@ else:
     def b(x):
         return codecs.latin_1_encode(x)[0]
 
+
+# def load_dark_sky_spectrum(wmin = 1500*u.angstrom, wmax = 11000*u.angstrom, *args, **kwargs):
+#     """
+#     requires https://github.com/lsst/throughputs/ and environment vars LSST_THROUGHPUTS
+#     and LSST_THROUGHPUTS_BASELINE.
+#
+#     e.g.:
+#     setenv LSST_THROUGHPUTS ${HOME}/projects/LSST/throughputs
+#     setenv LSST_THROUGHPUTS_BASELINE ${LSST_THROUGHPUTS}/baseline
+#     """
+#     dark_sky_path = os.path.join(os.environ["LSST_THROUGHPUTS_BASELINE"],"darksky.dat")
+#     darksky = SpectrumClass()
+#     darksky.load(dark_sky_path, wavelength_u = u.nm, flux_u = u.cgs.erg / u.si.cm ** 2 / u.si.s / u.nm,
+#                  fmt = "ascii.commented_header", wmin = wmin, wmax = wmax, *args, **kwargs)
+#
+#     darksky.success = True
+#
+#     return darksky
+#
+#
+# def calc_m_darksky(filter_name, vega = False):
+#     """
+#
+#     :param filter_name:
+#     :param vega:
+#     :return:
+#     """
+#     dark_sky_path = os.path.join(os.environ["LSST_THROUGHPUTS_BASELINE"], "darksky.dat")
+#     darksky = SpectrumClass()
+#     darksky.load(dark_sky_path, wavelength_u=u.nm, flux_u=u.cgs.erg / u.si.cm ** 2 / u.si.s / u.nm,
+#                  fmt="ascii.commented_header", wmin=3500 * u.angstrom, wmax=11000 * u.angstrom, )
+#
+#     if vega:
+#         zp = calc_vega_zp(filter_name)
+#     else:
+#         zp = calc_AB_zp(filter_name)
+#
+#     return -2.5 * log10(calc_spectrum_filter_flux(filter_name, darksky)) - zp
+
 if __name__ == "__main__":
 
     print(os.pardir(__file__))
