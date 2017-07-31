@@ -200,7 +200,9 @@ if __name__ == "__main__":
                                        z_sim, mag_offset, MW_EBV, host_EBV, 3.1,
                                        mjdmax, mjd_to_sim,
                                        filters_to_sim)
-        #
+
+        ## TODO NEED TO TIME DILATE THE LCS
+
         # flux, flux_err = coco.simulate(snname,
         #                                z_obs, 0.0, 0.0, 0.0, 3.1,
         #                                mjdmax, mjd_to_sim,
