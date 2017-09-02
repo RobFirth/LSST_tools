@@ -324,8 +324,8 @@ def calculate_SFR(z):
     return sfr
 
 
-def string_format_for_mapping(x):
-    return pcc.utils.b("SDSS_" + x)
+def string_format_for_mapping(x, prefix = "SDSS_"):
+    return pcc.utils.b(prefix + x)
 
 
 def choose_z_flat(z_max=0.6, n=1):
@@ -336,6 +336,7 @@ def choose_z_flat(z_max=0.6, n=1):
     :return:
     """
     return z_max * np.random.random(n)
+
 
 def choose_z_volume_SFR(n_req=10000, zmax=8.0, binsize=0.01):
     """
