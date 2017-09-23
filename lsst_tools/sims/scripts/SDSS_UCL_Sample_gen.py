@@ -45,7 +45,7 @@ if __name__ == "__main__":
                    ]
 
     n_sne_req = 10000
-    z_max = 0.4
+    z_max = 1.0
     plot = False
 
     ## Initialise pyCoCo
@@ -193,15 +193,29 @@ if __name__ == "__main__":
         snname = pcc.utils.b(info.table["snname"].data[snindex])
         if verbose: print(w, snname, snindex)
 
+        w_trim = np.logical_and(mjd_to_sim < mjdmax + 100, mjd_to_sim > mjdmax - 50)
+        mjd_to_sim = mjd_to_sim[w_trim]
+        filters_to_sim = filters_to_sim[w_trim]
+
+        mjd_to_sim = mjd_to_sim - mjdmax
+        mjd_to_sim = mjd_to_sim / (1.0 + z_sim)
+
         # snname = b"SN2011dh"
         # mag_offset = -2.0 ## Make Ia-like
         ## Simulate "Perfect" LC
+        # flux, flux_err = coco.simulate(snname,
+        #                                z_sim, mag_offset, MW_EBV, host_EBV, 3.1,
+        #                                mjdmax, mjd_to_sim,
+        #                                filters_to_sim)
         flux, flux_err = coco.simulate(snname,
                                        z_sim, mag_offset, MW_EBV, host_EBV, 3.1,
-                                       mjdmax, mjd_to_sim,
+                                       0.0, mjd_to_sim,
                                        filters_to_sim)
 
-        ## TODO NEED TO TIME DILATE THE LCS
+        mjd_to_sim = mjd_to_sim * (1.0 + z_sim)
+        mjd_to_sim = mjd_to_sim + mjdmax
+
+        ## TODO NEED TO TIME DILATE THE LCS - DONE, NEED TO TEST
 
         # flux, flux_err = coco.simulate(snname,
         #                                z_obs, 0.0, 0.0, 0.0, 3.1,
