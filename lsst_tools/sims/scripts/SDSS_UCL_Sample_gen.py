@@ -93,7 +93,7 @@ if __name__ == "__main__":
     pdf = InterpolatedUnivariateSpline(z, normed_volumetric_rate)
 
 
-    info = pcc.InfoClass()
+    info = pcc.classes.InfoClass()
     # info.load()
     # use only good SNe
     info.load(path = "/Users/berto/Code/CoCo/data/info/info_good.dat")
@@ -104,8 +104,8 @@ if __name__ == "__main__":
     for i in filter_names:
         zp_dict[i] = pcc.kcorr.calc_AB_zp(i)
 
-    n_sne = 0
-    n = 0
+    n_sne = 4730
+    n = 180570
     lc_outdir = "/Users/berto/projects/SDSS_sims/lcs/"
     log_outdir = "/Users/berto/projects/SDSS_sims/logs/"
 
@@ -223,8 +223,9 @@ if __name__ == "__main__":
         #                                filters_to_sim)
 
         if verbose: print(flux)
-        if len(flux[~np.isnan(flux)]) > 5: ## pycoco classes don't like nans!
-            p = pcc.PhotometryClass()
+        # if len(flux[~np.isnan(flux)]) > 5: ## pycoco classes don't like nans!
+        if len(flux[~np.isnan(flux)]) > 2:  ## pycoco classes don't like nans!
+            p = pcc.classes.PhotometryClass()
             p.load_table(pcc.utils.simulate_out_to_ap_table(mjd_to_sim, flux, flux_err, filters_to_sim), verbose=False)
             if plot: p.plot(enforce_zero=True)
 
@@ -250,7 +251,8 @@ if __name__ == "__main__":
                 print("where detected, len")
                 print(w_detected, len(w_detected))
 
-            if len(w_detected) >= 6:
+            # if len(w_detected) >= 6:
+            if len(w_detected) >= 2:
                 if verbose: print("good sne")
                 ## Remove redshift simulated at top of code from the list
                 # z_obs = np.delete(z_obs, [w_z])
